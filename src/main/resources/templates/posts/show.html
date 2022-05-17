@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="partials/partials.html :: head ('View One Post')"></head>
+<body>
+<ul th:replace="partials/partials.html :: navbar"></ul>
+<h1>Here is the post you asked to see:</h1>
+<h2 th:text="${post.title}"></h2>
+<p>Post number <span th:text="${post.id}"></span></p>
+<p th:text="${post.body}"></p>
+</body>
+</html>
