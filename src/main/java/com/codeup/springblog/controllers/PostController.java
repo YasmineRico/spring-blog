@@ -2,6 +2,7 @@ package com.codeup.springblog.controllers;
 
 
 import com.codeup.springblog.models.Post;
+import com.codeup.springblog.repositories.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ import java.util.List;
 public class PostController {
 
     private PostRepository postsDao;
+    private UserRepository usersDao;
+
 
     public PostController(PostRepository postsDao) {
         this.postsDao = postsDao;
