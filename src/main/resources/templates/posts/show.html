@@ -4,9 +4,13 @@
 <body>
 <nav th:replace="partials/partials.html :: navbar"></nav>
 <h1>Here is the post you asked to see:</h1>
-<h2 th:text="${post.title}"></h2>
-<p>Post number <span th:text="${post.id}"></span></p>
-<p th:text="${post.body}"></p>
+<h2 th:text="${title}"></h2>
+<p>Post number <span th:text="${id}"></span></p>
+<p th:text="${body}"></p>
+<p th:text="${email}"></p>
 <div th:replace="partials/partials.html :: footer"></div>
 </body>
 </html>
+
+
+
