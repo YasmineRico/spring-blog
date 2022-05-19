@@ -5,33 +5,45 @@ import javax.persistence.*;
 @Table(name = "posts")
 public class Post {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
+
     private String title;
-    @Column(nullable = false, columnDefinition = "TEXT")
+
+    @Column(nullable = false)
+
     private String body;
 
-    public Post(){}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Post(String title, String body) {
+    @OneToOne
+    private User user;
+
+
+    public Post() {
+
+    }
+
+    public Post(Long id, String title, String body, User user) {
         this.title = title;
         this.body = body;
+        this.user = user;
+        this.id = id;
     }
 
-    public Post(long id, String title, String body) {
-        this.id = id;
+    public Post(String title, String body, User user) {
         this.title = title;
         this.body = body;
+        this.user = user;
     }
 
-    public long getId() {
-        return id;
+    public User getUser() {
+        return user;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTitle() {
@@ -48,5 +60,13 @@ public class Post {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
