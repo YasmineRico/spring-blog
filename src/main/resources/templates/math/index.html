@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="partials/partials.html :: head ('Create a Post')" ></head>
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    max-width: 50%;
+    justify-content: center;
+  }
+</style>
+
+<body>
+<ul th:replace="partials/partials.html :: navbar"></ul>
+<h2>Do Math!</h2>
+<form action="/math" method="post">
+
+
+  <label for="inputA">First Input:</label>
+  <input type="text" name="inputA" id="inputA">
+
+  <label for="inputB">Second Input</label>
+  <input type="text" name="inputB" id="inputB">
+
+  <label for="operation">Operation:</label>
+  <select name="operation" id="operation">
+    <option value="multiply">multiply</option>
+    <option value="divide">divide</option>
+    <option value="subtract">subtract</option>
+    <option value="add">add</option>
+  </select>
+
+  <input type="submit" value="Calculate">
+
+  <div th:if="${total != null}">
+    Total: [[${total}]]
+  </div>
+
+</form>
+</body>
+</html>

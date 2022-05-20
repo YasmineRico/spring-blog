@@ -1,37 +1,78 @@
 package com.codeup.springblog.controllers;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-// This controller should listen for requests for several routes that correspond to basic arithmetic operations and produce the result of the arithmetic.
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class MathController {
-    @RequestMapping(path = "/add/{a}/and/{b}", method = RequestMethod.GET)
+    @RequestMapping(path = "/add100To/{number}", method = RequestMethod.GET)
     @ResponseBody
-    public double add(@PathVariable double a, @PathVariable double b) {
-        return (a + b);
+    public String addOneHundred(@PathVariable int number) {
+        return number + " + 100 = " + (number + 100);
     }
 
-    @RequestMapping(path = "/subtract/{a}/and/{b}", method = RequestMethod.GET)
+    @GetMapping("/add/{num1}/and/{num2}")
     @ResponseBody
-    public double subtract(@PathVariable double a, @PathVariable double b) {
-        return (a - b);
+    public double add(@PathVariable double num1, @PathVariable double num2) {
+        return num1 + num2;
     }
 
-    @RequestMapping(path = "/multiply/{a}/and/{b}", method = RequestMethod.GET)
+    @GetMapping("/subtract/{num1}/from/{num2}")
     @ResponseBody
-    public double multiply(@PathVariable double a, @PathVariable double b) {
-        return (a * b);
+    public double subtract(@PathVariable double num1, @PathVariable double num2) {
+        return num2 - num1;
     }
 
-    @RequestMapping(path = "/divide/{a}/and/{b}", method = RequestMethod.GET)
+    @GetMapping("/multiply/{num1}/and/{num2}")
     @ResponseBody
-    public double divide(@PathVariable double a, @PathVariable double b) {
-        return (a / b);
+    public double multiply(@PathVariable double num1, @PathVariable double num2) {
+        return num1 * num2;
     }
+
+    @GetMapping("/divide/{num1}/by/{num2}")
+    @ResponseBody
+    public double divide(@PathVariable double num1, @PathVariable double num2) {
+        return num1 / num2;
+    }
+
+
+    @GetMapping("/math")
+    public String math() {
+        return "math/index";
+    }
+
+
+    @PostMapping("/math")
+    public String doMath(
+            // do the math itself
+            @RequestParam(name = "inputA") double inputA,
+            @RequestParam(name = "inputB") double inputB,
+            @RequestParam(name = "operation") String operation,
+            Model model
+    ) {
+
+        double total = 0L;
+
+        switch(operation) {
+            case "add":
+                total = inputA + inputB;
+                break;
+            case "subtract":
+                total = inputA - inputB;
+                break;
+            case "multiply":
+                total = inputA * inputB;
+                break;
+            case "divide":
+                total = inputA / inputB;
+                break;
+        }
+
+        model.addAttribute("total", total);
+
+        return "math/index";
+    }
+
 }
 
