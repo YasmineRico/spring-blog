@@ -9,7 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.codeup.springblog.repositories.PostRepository;
+import services.EmailService;
+import services.StringService;
 
+import java.util.List;
 
 
 @Controller
@@ -19,9 +22,45 @@ public class PostController {
     private PostRepository postsDao;
     private UserRepository usersDao;
 
+
+
     public PostController(PostRepository postsDao, UserRepository usersDao) {
         this.postsDao = postsDao;
         this.usersDao = usersDao;
+    }
+
+    private EmailService emailService;
+
+    public PostController(PostRepository postsDao, StringService stringService, UserRepository usersDao,
+                          EmailService emailService
+    ){
+        this.stringService = stringService;
+        this.postsDao = postsDao;
+        this.usersDao = usersDao;
+        this.emailService = emailService;
+    }
+
+    @GetMapping
+    public String allPosts(Model model){
+        List<Post> allPosts = postsDao.findAll();
+
+        model.addAttribute("stringService", stringService);
+        model.addAttribute("allPosts", allPosts);
+        return "posts/index";
+    }
+
+    @GetMapping
+    public String allPosts(Model model){
+        List<Post> allPosts = postsDao.findAll();
+        model.addAttribute("allPosts", allPosts);
+        return "posts/index";
+    }
+
+    @GetMapping("/{id}")
+    public String onePost(@PathVariable long id, Model model){
+        Post post = postsDao.findById(id);
+        model.addAttribute("post", post);
+        return "posts/show";
     }
 
     @GetMapping("/posts")
