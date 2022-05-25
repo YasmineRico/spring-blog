@@ -8,17 +8,14 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-@Service("EmailService")
+@Service("emailService")
 public class EmailService {
 
-    public final JavaMailSender emailSender;
+    @Autowired
+    public JavaMailSender emailSender;
 
     @Value("${spring.mail.from}")
     private String from;
-
-    public EmailService(JavaMailSender emailSender) {
-        this.emailSender = emailSender;
-    }
 
     public void prepareAndSend(Post post, String subject, String body) {
         SimpleMailMessage msg = new SimpleMailMessage();
@@ -27,10 +24,9 @@ public class EmailService {
         msg.setSubject(subject);
         msg.setText(body);
 
-        try{
+        try {
             this.emailSender.send(msg);
-        }
-        catch (MailException ex) {
+        } catch (MailException ex) {
             // simply log it and go on...
             System.err.println(ex.getMessage());
         }

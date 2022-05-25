@@ -1,66 +1,29 @@
 package com.codeup.springblog.controllers;
 
-
 import com.codeup.springblog.models.Post;
 import com.codeup.springblog.models.User;
+import com.codeup.springblog.repositories.PostRepository;
 import com.codeup.springblog.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import com.codeup.springblog.repositories.PostRepository;
 import services.EmailService;
-import services.StringService;
-
-import java.util.List;
-
 
 @Controller
-
 public class PostController {
 
     private PostRepository postsDao;
     private UserRepository usersDao;
 
+    @Autowired
+    private final EmailService emailService;
 
-
-    public PostController(PostRepository postsDao, UserRepository usersDao) {
-        this.postsDao = postsDao;
-        this.usersDao = usersDao;
-    }
-
-    private EmailService emailService;
-
-    public PostController(PostRepository postsDao, StringService stringService, UserRepository usersDao,
-                          EmailService emailService
-    ){
-        this.stringService = stringService;
+    public PostController(PostRepository postsDao, UserRepository usersDao, EmailService emailService) {
         this.postsDao = postsDao;
         this.usersDao = usersDao;
         this.emailService = emailService;
-    }
-
-    @GetMapping
-    public String allPosts(Model model){
-        List<Post> allPosts = postsDao.findAll();
-
-        model.addAttribute("stringService", stringService);
-        model.addAttribute("allPosts", allPosts);
-        return "posts/index";
-    }
-
-    @GetMapping
-    public String allPosts(Model model){
-        List<Post> allPosts = postsDao.findAll();
-        model.addAttribute("allPosts", allPosts);
-        return "posts/index";
-    }
-
-    @GetMapping("/{id}")
-    public String onePost(@PathVariable long id, Model model){
-        Post post = postsDao.findById(id);
-        model.addAttribute("post", post);
-        return "posts/show";
     }
 
     @GetMapping("/posts")
@@ -68,50 +31,69 @@ public class PostController {
         model.addAttribute("posts", postsDao.findAll());
         return "posts/index";
     }
+
     @GetMapping("/posts/{id}")
     public String getPost(@PathVariable long id, Model model) {
-        Post post = postsDao.findById(id);
-        User user = usersDao.findById(id);
+        Post post = postsDao.getById(id);
+//        User user = usersDao.getOne(id);
+
         model.addAttribute("title", post.getTitle());
         model.addAttribute("body", post.getBody());
-        model.addAttribute("email", user.getEmail());
+//        model.addAttribute("email", user.getEmail());
         return "posts/show";
     }
+
     @GetMapping("/posts/create")
     public String createPostForm(Model model) {
         model.addAttribute("post", new Post());
         return "posts/create";
     }
+
     @PostMapping("/posts/create")
-    public String createPost(@RequestParam String title, @RequestParam String body, @RequestParam String email) {
+    public String createPost(@RequestParam String title, @RequestParam String body) {
         Post newPost = new Post();
         newPost.setTitle(title);
         newPost.setBody(body);
-        newPost.setUser(usersDao.findById(1));
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        newPost.setUser(loggedInUser);
         postsDao.save(newPost);
+
+        String emailSubject = "New Blog Post";
+        String emailBody = "Your post '" + title + "' is now live.";
+        emailService.prepareAndSend(newPost, emailSubject, emailBody);
         return "redirect:/posts";
     }
 
     @PostMapping("/posts/{id}/delete")
     public String deletePost(@PathVariable long id) {
-        // delete post
-        postsDao.deleteById(id);
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loggedInUser.getId() == postsDao.getById(id).getUser().getId())
+            // delete post
+            postsDao.deleteById(id);
         return "redirect:/posts";
     }
+
     @GetMapping("/posts/{id}/edit")
     public String editForm(@PathVariable long id, Model model) {
-        Post postToEdit = postsDao.findById(id);
-        model.addAttribute("post", postToEdit);
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post postToEdit = postsDao.getById(id);
+
+        if (loggedInUser.getId() == postsDao.getById(id).getUser().getId())
+            model.addAttribute("post", postToEdit);
         return "posts/edit";
     }
+
     @PostMapping("/posts/{id}/edit")
     public String updatePost(@PathVariable long id, @ModelAttribute Post post) {
-        // post object from database
-        Post editedPost = postsDao.findById(id);
-        editedPost.setTitle(post.getTitle());
-        editedPost.setBody(post.getBody());
-        postsDao.save(editedPost);
+        // post object from database currently
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post editedPost = postsDao.getById(id);
+
+        if (loggedInUser.getId() == postsDao.getOne(id).getUser().getId()) {
+            editedPost.setTitle(post.getTitle());
+            editedPost.setBody(post.getBody());
+            postsDao.save(editedPost);
+        }
         return "redirect:/posts";
     }
 }
-
